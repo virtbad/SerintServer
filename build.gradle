@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+}
+
+group 'ch.virtbad'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    // Lombok Annotations Dependencies
+    compile 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'org.projectlombok:lombok:1.18.16'
+
+    // Networking Library
+    compile 'com.github.VirtCode:PseudoPackets:v1.0'
+
+    // Json Parsing
+    compile 'com.google.code.gson:gson:2.8.6'
+}
+
+test {
+
+}
