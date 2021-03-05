@@ -162,4 +162,6 @@ gradle-app.setting
 
 /test
 
+config.json
+
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,windows,gradle,java
