@@ -19,6 +19,6 @@ public class Main {
 
         new Serint(); // Just evoking the constructor
 
-        log.info("Terminated Serint");
+        log.info("Terminated Starting Thread");
     }
 }

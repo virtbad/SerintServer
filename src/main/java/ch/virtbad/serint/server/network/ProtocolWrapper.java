@@ -1,6 +1,10 @@
 package ch.virtbad.serint.server.network;
 
 import ch.virt.pseudopackets.packets.Protocol;
+import ch.virtbad.serint.server.network.packets.KickPaket;
+import ch.virtbad.serint.server.network.packets.LoggedInPacket;
+import ch.virtbad.serint.server.network.packets.LoginPacket;
+import ch.virtbad.serint.server.network.packets.PingPacket;
 import lombok.Getter;
 
 /**
@@ -28,6 +32,10 @@ public class ProtocolWrapper {
     private void registerPackets(){
         // Register Packets here
 
+        protocol.addPacket(PingPacket.class, 0);
+        protocol.addPacket(LoginPacket.class, 1);
+        protocol.addPacket(LoggedInPacket.class, 2);
+        protocol.addPacket(KickPaket.class, 3);
 
     }
 }
