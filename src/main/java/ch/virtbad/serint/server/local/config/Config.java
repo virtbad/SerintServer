@@ -6,9 +6,11 @@ import lombok.Getter;
  * This class contains all config attributes
  * @author Virt
  */
+@Getter
 public class Config {
 
-    @Getter
     private int port = 17371;
+    private String name;
+    private String description;
 
 }
