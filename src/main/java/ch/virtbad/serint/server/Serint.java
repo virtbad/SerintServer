@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class is basically the main class. In it, all major things get initialized and loaded
+ *
  * @author Virt
  */
 @Slf4j
@@ -33,7 +34,7 @@ public class Serint {
     /**
      * Initializes minor Things
      */
-    public void init(){
+    public void init() {
         log.info("Initializing key components");
 
         // Load Config
@@ -43,7 +44,7 @@ public class Serint {
     /**
      * Creates major things
      */
-    public void create(){
+    public void create() {
         log.info("Creating Server components");
 
         // Creating Network Handler
@@ -52,12 +53,13 @@ public class Serint {
         // Initiating Game
         Communications communications = network.createServer(new Communications());
         game = new Game(communications);
+        game.init();
     }
 
     /**
      * Cleans up the creation process
      */
-    public void post(){
+    public void post() {
         log.info("Cleaning current Instance");
 
     }
