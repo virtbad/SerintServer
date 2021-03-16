@@ -11,7 +11,7 @@ public class Game {
 
     private Communications communications;
 
-    private Map map;
+    private java.util.Map<String, Map> maps;
 
     public Game(Communications communications) {
         this.communications = communications;
@@ -19,11 +19,11 @@ public class Game {
     }
 
     public void init() {
-        this.map = new MapLoader().read();
+        this.maps = new MapLoader().read();
     }
 
     public void init(String path) {
-        this.map = new MapLoader().read(path);
+        this.maps = new MapLoader().read(path);
     }
 
 }

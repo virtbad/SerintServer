@@ -7,6 +7,7 @@ public class Map {
 
     private int height;
     private int width;
+    private String name;
 
     private Tile[] tiles;
     private LightSource[] lights;
