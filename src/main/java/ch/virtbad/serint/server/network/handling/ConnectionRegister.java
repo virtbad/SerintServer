@@ -2,8 +2,7 @@ package ch.virtbad.serint.server.network.handling;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Virt
@@ -65,5 +64,34 @@ public class ConnectionRegister {
 
     public boolean isInGame(UUID uuid){
         return connections.get(uuid).isInGame();
+    }
+
+    public UUID[] selectInGame(ConnectionSelector selector){
+        List<UUID> uuids = new ArrayList<>();
+
+        if (selector.getMode() == ConnectionSelector.INCLUDED){
+            for (int i : selector.getIncluded()) {
+                UUID uuid = getUUID(i);
+                if (isInGame(uuid)) uuids.add(uuid);
+            }
+        }
+
+        if (selector.getMode() == ConnectionSelector.EXCLUDED) {
+            ex: for (Map.Entry<Integer, UUID> entry : gameIdMappings.entrySet()) {
+                boolean includes = false;
+
+                for (int i : selector.getExcluded()) {
+                    if (entry.getKey() == i) {
+                        includes = true;
+                        continue ex;
+                    }
+                }
+
+                UUID uuid = entry.getValue();
+                if (isInGame(uuid)) uuids.add(uuid);
+            }
+        }
+
+        return uuids.toArray(new UUID[0]);
     }
 }
