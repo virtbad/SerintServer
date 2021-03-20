@@ -5,12 +5,12 @@ import ch.virt.pseudopackets.packets.Packet;
 import ch.virt.pseudopackets.server.Server;
 import ch.virtbad.serint.server.Serint;
 import ch.virtbad.serint.server.game.Game;
+import ch.virtbad.serint.server.game.primitives.positioning.MovedLocation;
+import ch.virtbad.serint.server.game.registers.Player;
 import ch.virtbad.serint.server.local.config.ConfigHandler;
 import ch.virtbad.serint.server.network.handling.ConnectionRegister;
-import ch.virtbad.serint.server.network.packets.KickPaket;
-import ch.virtbad.serint.server.network.packets.LoggedInPacket;
-import ch.virtbad.serint.server.network.packets.LoginPacket;
-import ch.virtbad.serint.server.network.packets.PingPacket;
+import ch.virtbad.serint.server.network.handling.ConnectionSelector;
+import ch.virtbad.serint.server.network.packets.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import java.util.UUID;
  * @author Virt
  */
 @Slf4j
-public class Communications extends ServerPacketHandler {
+public class Communications extends CustomServerPacketHandler {
 
     @Setter private Server server; // Is getting set automatically after server creation
     @Setter private Game game; // Same as server
@@ -35,6 +35,9 @@ public class Communications extends ServerPacketHandler {
     public Communications(){
         register = new ConnectionRegister();
     }
+
+
+    // ----- Packet Sending -----
 
     /**
      * Sends a packet over the server
@@ -54,6 +57,22 @@ public class Communications extends ServerPacketHandler {
         sendPacket(packet, register.getUUID(id));
     }
 
+    /**
+     * Sends packet over the server using a selector
+     * @param packet packet to send
+     * @param selector selector for targets
+     */
+    private void sendPacket(Packet packet, ConnectionSelector selector){
+        UUID[] uuids = register.selectInGame(selector);
+
+        for (UUID uuid : uuids) {
+            sendPacket(packet, uuid);
+        }
+    }
+
+
+    // ----- Basic Handling -----
+
     @Override
     public void connected(UUID client) {
         register.connect(client);
@@ -61,8 +80,16 @@ public class Communications extends ServerPacketHandler {
 
     @Override
     public void disconnected(UUID client) {
+
+        if (register.isInGame(client)){
+            game.removeClient(register.getGameId(client));
+        }
+
         register.disconnect(client);
     }
+
+
+    // ----- Connection Packets -----
 
     public void handle(PingPacket packet, UUID id) {
         sendPacket(packet, id); // Just send Packet back, since it is a ping
@@ -78,4 +105,55 @@ public class Communications extends ServerPacketHandler {
         }
     }
 
+    public void handle(JoinPacket packet, UUID id){
+        if (register.isAccepted(id)){
+
+            register.join(id);
+            log.info("Client {} joined the game with id {}", id, register.getGameId(id));
+
+            int playerId = game.initializeClient(register.getGameId(id), packet.getName(), packet.getColor());
+
+            sendPacket(new JoinedPacket(playerId), id);
+
+        } else log.info("Client {} tried to join without being accepted!", id);
+    }
+
+
+    // ----- Gameplay Packets -----
+
+    public void handle(PlayerLocationPacket packet, UUID id){
+        if (register.isInGame(id)){
+            game.updatePlayerLocation(register.getGameId(id), packet.getX(), packet.getY(), packet.getVelocityX(), packet.getVelocityY());
+        }
+    }
+
+
+    // ----- Outgoing Data -----
+
+    /**
+     * This Method sends a Packet that creates a player on
+     * @param player player to create
+     * @param selector target
+     */
+    public void sendCreatePlayer(Player player, ConnectionSelector selector){
+        sendPacket(new PlayerCreatePacket(player.getId(), player.getName(), player.getColor().getRGB()), selector);
+    }
+
+    /**
+     * Sends the removal of a player
+     * @param id id to remove
+     * @param selector target
+     */
+    public void sendRemovePlayer(int id, ConnectionSelector selector){
+        sendPacket(new PlayerDestroyPacket(id), selector);
+    }
+
+    /**
+     * Sends an update of the position of the player
+     * @param player player that has repositioned
+     * @param selector target
+     */
+    public void sendPlayerLocation(Player player, ConnectionSelector selector){
+        sendPacket(new PlayerLocationPacket(player.getId(), player.getLocation().getPosX(), player.getLocation().getPosY(), player.getLocation().getVelocityX(), player.getLocation().getVelocityY()), selector);
+    }
 }

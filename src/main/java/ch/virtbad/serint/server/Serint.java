@@ -53,7 +53,8 @@ public class Serint {
         // Initiating Game
         Communications communications = network.createServer(new Communications());
         game = new Game(communications);
-        game.init();
+      
+        // Map Loading
     }
 
     /**
