@@ -6,6 +6,7 @@ import lombok.Getter;
 
 /**
  * This class wraps the Protocol for its creation
+ *
  * @author Virt
  */
 public class ProtocolWrapper {
@@ -16,7 +17,7 @@ public class ProtocolWrapper {
     /**
      * Initializes a ProtocolWrapper and registers the packets
      */
-    public ProtocolWrapper(){
+    public ProtocolWrapper() {
         protocol = new Protocol();
 
         registerPackets();
@@ -26,7 +27,7 @@ public class ProtocolWrapper {
      * This method calls all register Packet methods to insert packets into the protocol.
      * Every Packet should be added here
      */
-    private void registerPackets(){
+    private void registerPackets() {
         // Register Packets here
 
         // Moderation Packets
@@ -34,6 +35,7 @@ public class ProtocolWrapper {
         protocol.addPacket(LoginPacket.class, 1);
         protocol.addPacket(LoggedInPacket.class, 2);
         protocol.addPacket(KickPaket.class, 3);
+        protocol.addPacket(MapPacket.class, 20);
 
         // Game Connection Packets
         protocol.addPacket(JoinPacket.class, 10);

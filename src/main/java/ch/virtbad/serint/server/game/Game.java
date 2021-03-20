@@ -2,6 +2,8 @@ package ch.virtbad.serint.server.game;
 
 import ch.virtbad.serint.server.game.registers.Player;
 import ch.virtbad.serint.server.game.registers.PlayerRegister;
+import ch.virtbad.serint.server.game.map.Map;
+import ch.virtbad.serint.server.game.map.MapLoader;
 import ch.virtbad.serint.server.network.Communications;
 import ch.virtbad.serint.server.network.handling.ConnectionSelector;
 
