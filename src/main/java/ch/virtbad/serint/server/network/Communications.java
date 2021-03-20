@@ -36,6 +36,9 @@ public class Communications extends CustomServerPacketHandler {
         register = new ConnectionRegister();
     }
 
+
+    // ----- Packet Sending -----
+
     /**
      * Sends a packet over the server
      * @param packet packet to send
@@ -54,6 +57,11 @@ public class Communications extends CustomServerPacketHandler {
         sendPacket(packet, register.getUUID(id));
     }
 
+    /**
+     * Sends packet over the server using a selector
+     * @param packet packet to send
+     * @param selector selector for targets
+     */
     private void sendPacket(Packet packet, ConnectionSelector selector){
         UUID[] uuids = register.selectInGame(selector);
 
@@ -61,6 +69,9 @@ public class Communications extends CustomServerPacketHandler {
             sendPacket(packet, uuid);
         }
     }
+
+
+    // ----- Basic Handling -----
 
     @Override
     public void connected(UUID client) {
@@ -76,6 +87,9 @@ public class Communications extends CustomServerPacketHandler {
 
         register.disconnect(client);
     }
+
+
+    // ----- Connection Packets -----
 
     public void handle(PingPacket packet, UUID id) {
         sendPacket(packet, id); // Just send Packet back, since it is a ping
@@ -104,6 +118,18 @@ public class Communications extends CustomServerPacketHandler {
         } else log.info("Client {} tried to join without being accepted!", id);
     }
 
+
+    // ----- Gameplay Packets -----
+
+    public void handle(PlayerLocationPacket packet, UUID id){
+        if (register.isInGame(id)){
+            game.updatePlayerLocation(register.getGameId(id), packet.getX(), packet.getY(), packet.getVelocityX(), packet.getVelocityY());
+        }
+    }
+
+
+    // ----- Outgoing Data -----
+
     /**
      * This Method sends a Packet that creates a player on
      * @param player player to create
@@ -130,11 +156,4 @@ public class Communications extends CustomServerPacketHandler {
     public void sendPlayerLocation(Player player, ConnectionSelector selector){
         sendPacket(new PlayerLocationPacket(player.getId(), player.getLocation().getPosX(), player.getLocation().getPosY(), player.getLocation().getVelocityX(), player.getLocation().getVelocityY()), selector);
     }
-
-    public void handle(PlayerLocationPacket packet, UUID id){
-        if (register.isInGame(id)){
-            game.updatePlayerLocation(register.getGameId(id), packet.getX(), packet.getY(), packet.getVelocityX(), packet.getVelocityY());
-        }
-    }
-
 }

@@ -2,19 +2,28 @@ package ch.virtbad.serint.server.network.handling;
 
 import lombok.Getter;
 
-import java.util.List;
-
 /**
+ * This class is used to select a few clients that are connected to the server
  * @author Virt
  */
 public class ConnectionSelector {
-    public static final int INCLUDED = 0;
-    public static final int EXCLUDED = 1;
+    static final int INCLUDED = 0;
+    static final int EXCLUDED = 1;
 
+    /**
+     * Creates a selector that includes a set of clients
+     * @param clients clients to include
+     * @return created selector
+     */
     public static ConnectionSelector include(int ...clients){
         return new ConnectionSelector(INCLUDED, new int[0], clients);
     }
 
+    /**
+     * Creates a selector that excludes a set of clients
+     * @param clients clients to exclude
+     * @return created selector
+     */
     public static ConnectionSelector exclude(int ...clients){
         return new ConnectionSelector(EXCLUDED, clients, new int[0]);
     }
@@ -26,7 +35,13 @@ public class ConnectionSelector {
     @Getter
     private int[] included;
 
-    public ConnectionSelector(int mode, int[] excluded, int[] included) {
+    /**
+     * Creates a selector
+     * @param mode mode of the selector (include or exclude)
+     * @param excluded included clients
+     * @param included excluded clients
+     */
+    private ConnectionSelector(int mode, int[] excluded, int[] included) {
         this.mode = mode;
         this.excluded = excluded;
         this.included = included;

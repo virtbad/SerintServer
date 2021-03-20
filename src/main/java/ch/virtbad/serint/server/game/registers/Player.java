@@ -19,6 +19,11 @@ public class Player {
 
     private MovedLocation location;
 
+    /**
+     * Creates a player
+     * @param name name of the player
+     * @param color colour of the player
+     */
     public Player(String name, Color color) {
         this.name = name;
         this.color = color;
