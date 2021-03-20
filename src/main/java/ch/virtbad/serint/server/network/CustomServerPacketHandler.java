@@ -12,7 +12,7 @@ import java.util.UUID;
  * @author VirtCode
  * @version 1.0
  */
-@Slf4j
+@Slf4j @Deprecated
 public abstract class CustomServerPacketHandler extends ServerPacketHandler {
 
     public abstract void connected(UUID client);

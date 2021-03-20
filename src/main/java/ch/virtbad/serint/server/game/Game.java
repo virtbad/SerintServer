@@ -1,9 +1,8 @@
 package ch.virtbad.serint.server.game;
 
+import ch.virtbad.serint.server.game.map.MapLoader;
 import ch.virtbad.serint.server.game.registers.Player;
 import ch.virtbad.serint.server.game.registers.PlayerRegister;
-import ch.virtbad.serint.server.game.map.Map;
-import ch.virtbad.serint.server.game.map.MapLoader;
 import ch.virtbad.serint.server.network.Communications;
 import ch.virtbad.serint.server.network.handling.ConnectionSelector;
 
@@ -18,6 +17,9 @@ public class Game {
     private Communications com;
 
     private PlayerRegister register;
+    private MapLoader loader;
+
+    private String currentMap;
 
     /**
      * Creates a game
@@ -28,6 +30,10 @@ public class Game {
         communications.setGame(this);
 
         register = new PlayerRegister();
+
+        loader = new MapLoader();
+        loader.read();
+        currentMap = "Lobby";
     }
 
     /**
@@ -38,9 +44,8 @@ public class Game {
      * @return player id for that client
      */
     public int initializeClient(int client, String name, int colour){
-        // Get Map
-        // Send Map
-        // TODO: Fill in
+        // Get and Send Map
+        com.sendMap(loader.getMap(currentMap), ConnectionSelector.include(client));
 
         // Sends all current players to the new player
         for (Player player : register.getPlayers()) {

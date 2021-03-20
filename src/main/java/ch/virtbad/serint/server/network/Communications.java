@@ -5,6 +5,7 @@ import ch.virt.pseudopackets.packets.Packet;
 import ch.virt.pseudopackets.server.Server;
 import ch.virtbad.serint.server.Serint;
 import ch.virtbad.serint.server.game.Game;
+import ch.virtbad.serint.server.game.map.TileMap;
 import ch.virtbad.serint.server.game.primitives.positioning.MovedLocation;
 import ch.virtbad.serint.server.game.registers.Player;
 import ch.virtbad.serint.server.local.config.ConfigHandler;
@@ -155,5 +156,14 @@ public class Communications extends CustomServerPacketHandler {
      */
     public void sendPlayerLocation(Player player, ConnectionSelector selector){
         sendPacket(new PlayerLocationPacket(player.getId(), player.getLocation().getPosX(), player.getLocation().getPosY(), player.getLocation().getVelocityX(), player.getLocation().getVelocityY()), selector);
+    }
+
+    /**
+     * Sends a map to the client
+     * @param map map to send
+     * @param selector target
+     */
+    public void sendMap(TileMap map, ConnectionSelector selector){
+        sendPacket(new MapPacket(map.getName(), map), selector);
     }
 }

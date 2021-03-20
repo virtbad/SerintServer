@@ -1,13 +1,17 @@
 package ch.virtbad.serint.server.network.packets;
 
 import ch.virt.pseudopackets.packets.Packet;
-import ch.virtbad.serint.server.game.map.Map;
+import ch.virtbad.serint.server.game.map.TileMap;
 import lombok.Getter;
 
+/**
+ * Sent when the server transmits a new map over to the client
+ */
 @Getter
 public class MapPacket extends Packet {
+
     private String name;
-    private Map map;
+    private TileMap map;
 
     /**
      * Constructor
@@ -15,7 +19,7 @@ public class MapPacket extends Packet {
      * @param map  map instance
      * @param name name of the map e.g. "Lobby"
      */
-    public MapPacket(String name, Map map) {
+    public MapPacket(String name, TileMap map) {
         super(20);
         this.name = name;
         this.map = map;
