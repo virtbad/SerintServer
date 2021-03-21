@@ -1,5 +1,6 @@
 package ch.virtbad.serint.server.game.map;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -53,7 +54,7 @@ public class TileMap {
             }
         }
 
-        return new Action();
+        return new Action(0, 0, type);
     }
 
     /**
@@ -93,7 +94,7 @@ public class TileMap {
         }
     }
 
-    @Getter
+    @Getter @AllArgsConstructor
     public static class Action {
         private int x;
         private int y;

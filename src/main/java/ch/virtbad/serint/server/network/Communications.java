@@ -116,6 +116,8 @@ public class Communications extends CustomServerPacketHandler {
 
             sendPacket(new JoinedPacket(playerId), id);
 
+            game.spawnClient(register.getGameId(id));
+
         } else log.info("Client {} tried to join without being accepted!", id);
     }
 

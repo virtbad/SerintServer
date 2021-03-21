@@ -1,6 +1,7 @@
 package ch.virtbad.serint.server.game;
 
 import ch.virtbad.serint.server.game.map.MapLoader;
+import ch.virtbad.serint.server.game.map.TileMap;
 import ch.virtbad.serint.server.game.registers.Player;
 import ch.virtbad.serint.server.game.registers.PlayerRegister;
 import ch.virtbad.serint.server.network.Communications;
@@ -60,6 +61,16 @@ public class Game {
         com.sendCreatePlayer(created, ConnectionSelector.exclude(client));
 
         return register.getPlayerId(client);
+    }
+
+    public void spawnClient(int client){
+        // Set Spawn Location
+        Player player = register.getPlayer(register.getPlayerId(client));
+        TileMap.Action spawn = loader.getMap(currentMap).selectRandomAction(TileMap.Action.ActionType.SPAWN);
+        player.getLocation().setPosX(spawn.getX());
+        player.getLocation().setPosY(spawn.getY());
+        com.sendPlayerLocation(player, ConnectionSelector.exclude());
+
     }
 
     /**
