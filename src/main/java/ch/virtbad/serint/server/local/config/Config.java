@@ -13,4 +13,10 @@ public class Config {
     private String name = "Serint Server";
     private String description = "A default Serint Server!";
 
+    private int tps = 20;
+
+    private float baseSpeed = 4;
+    private float baseVision = 4;
+    private float baseHealth = 5;
+
 }

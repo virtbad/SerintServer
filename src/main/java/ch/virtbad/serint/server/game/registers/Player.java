@@ -17,6 +17,8 @@ public class Player {
     private String name;
     private Color color;
 
+    private PlayerAttributes attributes;
+
     private MovedLocation location;
 
     /**
@@ -29,5 +31,6 @@ public class Player {
         this.color = color;
 
         location = new MovedLocation();
+        attributes = new PlayerAttributes();
     }
 }

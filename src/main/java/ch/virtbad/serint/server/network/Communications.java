@@ -5,6 +5,7 @@ import ch.virt.pseudopackets.packets.Packet;
 import ch.virt.pseudopackets.server.Server;
 import ch.virtbad.serint.server.Serint;
 import ch.virtbad.serint.server.game.Game;
+import ch.virtbad.serint.server.game.item.Item;
 import ch.virtbad.serint.server.game.map.TileMap;
 import ch.virtbad.serint.server.game.primitives.positioning.MovedLocation;
 import ch.virtbad.serint.server.game.registers.Player;
@@ -167,5 +168,9 @@ public class Communications extends CustomServerPacketHandler {
      */
     public void sendMap(TileMap map, ConnectionSelector selector){
         sendPacket(new MapPacket(map.getName(), map), selector);
+    }
+
+    public void sendCreateItem(Item item, int id, ConnectionSelector selector){
+        sendPacket(new ItemCreatePacket(item.getType(), id, item.getLocation().getPosX(), item.getLocation().getPosY()), selector);
     }
 }

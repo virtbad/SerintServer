@@ -53,8 +53,6 @@ public class Serint {
         // Initiating Game
         Communications communications = network.createServer(new Communications());
         game = new Game(communications);
-      
-        // Map Loading
     }
 
     /**
@@ -63,5 +61,8 @@ public class Serint {
     public void post() {
         log.info("Cleaning current Instance");
 
+        while (true) { // TODO: Add breakpoints
+            game.getUpdater().call();
+        }
     }
 }

@@ -35,19 +35,21 @@ public class ProtocolWrapper {
         protocol.addPacket(LoginPacket.class, 1);
         protocol.addPacket(LoggedInPacket.class, 2);
         protocol.addPacket(KickPaket.class, 3);
-        protocol.addPacket(MapPacket.class, 20);
 
         // Game Connection Packets
         protocol.addPacket(JoinPacket.class, 10);
         protocol.addPacket(JoinedPacket.class, 11);
 
-        // Game Content Packets
+        // Environment Data Packets
         protocol.addPacket(MapPacket.class, 20);
+        protocol.addPacket(ItemCreatePacket.class, 21);
+        protocol.addPacket(ItemDestroyPacket.class, 22);
 
         // Player Transmission
         protocol.addPacket(PlayerCreatePacket.class, 30);
         protocol.addPacket(PlayerDestroyPacket.class, 31);
         protocol.addPacket(PlayerLocationPacket.class, 32);
+        protocol.addPacket(PlayerAttributePacket.class, 34);
 
     }
 }

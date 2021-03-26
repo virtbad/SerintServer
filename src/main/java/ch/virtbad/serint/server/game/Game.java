@@ -1,11 +1,18 @@
 package ch.virtbad.serint.server.game;
 
+import ch.virtbad.serint.server.game.item.DebugItem;
+import ch.virtbad.serint.server.game.item.Item;
+import ch.virtbad.serint.server.game.item.ItemRegister;
+import ch.virtbad.serint.server.game.item.SpeedItem;
 import ch.virtbad.serint.server.game.map.MapLoader;
 import ch.virtbad.serint.server.game.map.TileMap;
+import ch.virtbad.serint.server.game.primitives.positioning.FixedLocation;
 import ch.virtbad.serint.server.game.registers.Player;
 import ch.virtbad.serint.server.game.registers.PlayerRegister;
+import ch.virtbad.serint.server.local.config.ConfigHandler;
 import ch.virtbad.serint.server.network.Communications;
 import ch.virtbad.serint.server.network.handling.ConnectionSelector;
+import lombok.Getter;
 
 import java.awt.*;
 
@@ -17,10 +24,16 @@ public class Game {
 
     private Communications com;
 
-    private PlayerRegister register;
+    private PlayerRegister players;
+    private ItemRegister items;
     private MapLoader loader;
 
     private String currentMap;
+
+    private int tickDelta = 0;
+
+    @Getter
+    private GameUpdater updater;
 
     /**
      * Creates a game
@@ -30,11 +43,36 @@ public class Game {
         this.com = communications;
         communications.setGame(this);
 
-        register = new PlayerRegister();
+        updater = new GameUpdater(this, ConfigHandler.getConfig().getTps());
+
+        players = new PlayerRegister();
+        items = new ItemRegister();
 
         loader = new MapLoader();
         loader.read();
-        currentMap = "Lobby";
+        currentMap = "TestLobby";
+    }
+
+    /**
+     * Updates the server game
+     */
+    public void update(){
+        tickDelta++;
+
+        if (tickDelta % 600 == 0){
+            TileMap.Action action = loader.getMap(currentMap).selectRandomAction(TileMap.Action.ActionType.ITEM);
+
+            // TODO: Implement real spawning
+
+            Item item = new DebugItem();
+
+            if (Math.random() > 0.5) item = new SpeedItem(); // Yes indeed, very "pfusch"
+
+            item.getLocation().setPosX(action.getX());
+            item.getLocation().setPosY(action.getY());
+
+            spawnItem(item);
+        }
     }
 
     /**
@@ -49,28 +87,27 @@ public class Game {
         com.sendMap(loader.getMap(currentMap), ConnectionSelector.include(client));
 
         // Sends all current players to the new player
-        for (Player player : register.getPlayers()) {
+        for (Player player : players.getPlayers()) {
             com.sendCreatePlayer(player, ConnectionSelector.include(client));
         }
 
         // Creates player
-        register.createPlayer(new Player(name, new Color(colour)), client);
-        Player created = register.getPlayer(register.getPlayerId(client));
+        players.createPlayer(new Player(name, new Color(colour)), client);
+        Player created = players.getPlayer(players.getPlayerId(client));
 
         // Sends new player to all other players
         com.sendCreatePlayer(created, ConnectionSelector.exclude(client));
 
-        return register.getPlayerId(client);
+        return players.getPlayerId(client);
     }
 
     public void spawnClient(int client){
         // Set Spawn Location
-        Player player = register.getPlayer(register.getPlayerId(client));
+        Player player = players.getPlayer(players.getPlayerId(client));
         TileMap.Action spawn = loader.getMap(currentMap).selectRandomAction(TileMap.Action.ActionType.SPAWN);
         player.getLocation().setPosX(spawn.getX());
         player.getLocation().setPosY(spawn.getY());
         com.sendPlayerLocation(player, ConnectionSelector.exclude());
-
     }
 
     /**
@@ -79,10 +116,10 @@ public class Game {
      */
     public void removeClient(int id){
         // Sends the removal of the client to all other clients
-        com.sendRemovePlayer(register.getPlayerId(id), ConnectionSelector.exclude(id));
+        com.sendRemovePlayer(players.getPlayerId(id), ConnectionSelector.exclude(id));
 
         // Removes the player from the game
-        register.removePlayer(register.getPlayerId(id));
+        players.removePlayer(players.getPlayerId(id));
     }
 
     /**
@@ -95,7 +132,7 @@ public class Game {
      */
     public void updatePlayerLocation(int id, float x, float y, float velocityX, float velocityY){
         // Updates the location of the player
-        Player player = register.getPlayer(register.getPlayerId(id));
+        Player player = players.getPlayer(players.getPlayerId(id));
 
         player.getLocation().setPosX(x);
         player.getLocation().setPosY(y);
@@ -104,5 +141,10 @@ public class Game {
 
         // Sends new player location to all other players
         com.sendPlayerLocation(player, ConnectionSelector.exclude(id));
+    }
+
+    public void spawnItem(Item item){
+        int id = items.createItem(item);
+        com.sendCreateItem(item, id, ConnectionSelector.exclude());
     }
 }
