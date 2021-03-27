@@ -11,6 +11,8 @@ import lombok.Setter;
  */
 public abstract class Item {
 
+    @Getter @Setter
+    private int id;
     @Getter
     private int type;
     @Getter @Setter

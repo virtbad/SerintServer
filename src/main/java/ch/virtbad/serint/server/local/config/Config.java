@@ -17,6 +17,6 @@ public class Config {
 
     private float baseSpeed = 4;
     private float baseVision = 4;
-    private float baseHealth = 5;
+    private int baseHealth = 5;
 
 }

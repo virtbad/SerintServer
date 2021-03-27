@@ -46,14 +46,18 @@ public class PlayerRegister {
         return id;
     }
 
+    public boolean has(int id){
+        return players.containsKey(id);
+    }
+
     /**
      * Removes a player
      * @param id id of the player
      */
-    public void removePlayer(int id){
+    public Player removePlayer(int id){
         if (!players.containsKey(id)) {
             log.error("Trying to remove invalid player with id {}", id);
-            return;
+            return null;
         }
 
         log.info("Removing Player with id: {}", id);
@@ -61,7 +65,7 @@ public class PlayerRegister {
         remotePlayerIdMappings.remove(remote);
         playerRemoteIdMappings.get(id);
 
-        players.remove(id);
+        return players.remove(id);
     }
 
     /**

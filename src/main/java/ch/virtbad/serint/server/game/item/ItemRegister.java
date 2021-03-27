@@ -31,17 +31,22 @@ public class ItemRegister {
         int id = ++lastId;
         log.info("Adding Item {} with Type {} at {},{}", id, item.getType(), item.getLocation().getPosX(), item.getLocation().getPosY());
 
+        item.setId(id);
         items.put(id, item);
 
         return id;
+    }
+
+    public boolean has(int id){
+        return items.containsKey(id);
     }
 
     /**
      * Removes the items from the register
      * @param id id of the item
      */
-    public void removeItem(int id){
-        items.remove(id);
+    public Item removeItem(int id){
+        return items.remove(id);
     }
 
     /**

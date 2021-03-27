@@ -8,6 +8,7 @@ import ch.virtbad.serint.server.game.map.MapLoader;
 import ch.virtbad.serint.server.game.map.TileMap;
 import ch.virtbad.serint.server.game.primitives.positioning.FixedLocation;
 import ch.virtbad.serint.server.game.registers.Player;
+import ch.virtbad.serint.server.game.registers.PlayerAttributes;
 import ch.virtbad.serint.server.game.registers.PlayerRegister;
 import ch.virtbad.serint.server.local.config.ConfigHandler;
 import ch.virtbad.serint.server.network.Communications;
@@ -91,6 +92,11 @@ public class Game {
             com.sendCreatePlayer(player, ConnectionSelector.include(client));
         }
 
+        // Sends all current items to the player
+        for (Item item : items.getItems()) {
+            com.sendCreateItem(item, ConnectionSelector.include(client));
+        }
+
         // Creates player
         players.createPlayer(new Player(name, new Color(colour)), client);
         Player created = players.getPlayer(players.getPlayerId(client));
@@ -101,9 +107,18 @@ public class Game {
         return players.getPlayerId(client);
     }
 
+    /**
+     * Spawns the client and sets its info
+     * @param client client to spawn
+     */
     public void spawnClient(int client){
-        // Set Spawn Location
         Player player = players.getPlayer(players.getPlayerId(client));
+
+        // Set attributes
+        player.setAttributes(new PlayerAttributes());
+        com.sendPlayerAttributes(player, ConnectionSelector.exclude());
+
+        // Set Spawn Location
         TileMap.Action spawn = loader.getMap(currentMap).selectRandomAction(TileMap.Action.ActionType.SPAWN);
         player.getLocation().setPosX(spawn.getX());
         player.getLocation().setPosY(spawn.getY());
@@ -143,8 +158,39 @@ public class Game {
         com.sendPlayerLocation(player, ConnectionSelector.exclude(id));
     }
 
+    /**
+     * Spawns an item into the world
+     * @param item item to spawn
+     */
     public void spawnItem(Item item){
-        int id = items.createItem(item);
-        com.sendCreateItem(item, id, ConnectionSelector.exclude());
+        item = items.getItem(items.createItem(item)); // Id is being updated
+        com.sendCreateItem(item, ConnectionSelector.exclude());
+    }
+
+    /**
+     * Collects an item
+     * @param itemId item that was collected
+     * @param clientId client that collected
+     */
+    public void collectItem(int itemId, int clientId){
+        if (!items.has(itemId)) return;
+        items.removeItem(itemId).collect(players.getPlayer(players.getPlayerId(clientId)).getAttributes());
+        com.sendRemoveItem(itemId, ConnectionSelector.exclude());
+    }
+
+    /**
+     * Attacks a player
+     * @param targetId attacked player
+     * @param clientId client that attacked
+     */
+    public void attackPlayer(int targetId, int clientId){
+        if (!players.has(targetId)) return;
+        players.getPlayer(targetId).getAttributes().setHealth(players.getPlayer(targetId).getAttributes().getHealth() - 1);
+
+        if (players.getPlayer(targetId).getAttributes().getHealth() == 0){
+            com.sendRemovePlayer(targetId, ConnectionSelector.exclude(players.getRemoteId(targetId)));
+            com.kickPlayer("You ran out of lives!", ConnectionSelector.include(players.getRemoteId(targetId)));
+        }
+
     }
 }

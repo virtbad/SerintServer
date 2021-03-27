@@ -131,6 +131,14 @@ public class Communications extends CustomServerPacketHandler {
         }
     }
 
+    public void handle(ItemCollectionPacket packet, UUID id){
+        game.collectItem(packet.getItemId(), register.getGameId(id));
+    }
+
+    public void handle(PlayerAbsorbPacket packet, UUID id){
+        game.attackPlayer(packet.getPlayerId(), register.getGameId(id));
+    }
+
 
     // ----- Outgoing Data -----
 
@@ -162,6 +170,15 @@ public class Communications extends CustomServerPacketHandler {
     }
 
     /**
+     * Sends a player attributes
+     * @param player player to send attributes for
+     * @param selector target
+     */
+    public void sendPlayerAttributes(Player player, ConnectionSelector selector){
+        sendPacket(new PlayerAttributePacket(player.getAttributes(), player.getId()), selector);
+    }
+
+    /**
      * Sends a map to the client
      * @param map map to send
      * @param selector target
@@ -170,7 +187,30 @@ public class Communications extends CustomServerPacketHandler {
         sendPacket(new MapPacket(map.getName(), map), selector);
     }
 
-    public void sendCreateItem(Item item, int id, ConnectionSelector selector){
-        sendPacket(new ItemCreatePacket(item.getType(), id, item.getLocation().getPosX(), item.getLocation().getPosY()), selector);
+    /**
+     * Sends the creation of an item
+     * @param item item to create
+     * @param selector target
+     */
+    public void sendCreateItem(Item item, ConnectionSelector selector){
+        sendPacket(new ItemCreatePacket(item.getType(), item.getId(), item.getLocation().getPosX(), item.getLocation().getPosY()), selector);
+    }
+
+    /**
+     * Sends the destruction of an item
+     * @param id id of said item
+     * @param selector
+     */
+    public void sendRemoveItem(int id, ConnectionSelector selector) {
+        sendPacket(new ItemDestroyPacket(id), selector);
+    }
+
+    /**
+     * Kicks a player from the game
+     * @param reason reason for kick
+     * @param selector target
+     */
+    public void kickPlayer(String reason, ConnectionSelector selector) {
+        sendPacket(new KickPaket(reason), selector);
     }
 }

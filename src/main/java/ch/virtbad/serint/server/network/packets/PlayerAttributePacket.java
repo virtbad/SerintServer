@@ -2,11 +2,13 @@ package ch.virtbad.serint.server.network.packets;
 
 import ch.virt.pseudopackets.packets.Packet;
 import ch.virtbad.serint.server.game.registers.PlayerAttributes;
+import lombok.Getter;
 
 /**
  * This packet is used to transmit new attributes
  * @author Virt
  */
+@Getter
 public class PlayerAttributePacket extends Packet {
 
     private int player;

@@ -51,5 +51,9 @@ public class ProtocolWrapper {
         protocol.addPacket(PlayerLocationPacket.class, 32);
         protocol.addPacket(PlayerAttributePacket.class, 34);
 
+        // Interaction Transmission
+        protocol.addPacket(PlayerAbsorbPacket.class, 41);
+        protocol.addPacket(ItemCollectionPacket.class, 40);
+
     }
 }
