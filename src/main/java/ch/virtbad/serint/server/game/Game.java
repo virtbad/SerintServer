@@ -65,9 +65,9 @@ public class Game {
 
             // TODO: Implement real spawning
 
-            Item item = new DebugItem();
+            //Item item = new DebugItem();
 
-            if (Math.random() > 0.5) item = new SpeedItem(); // Yes indeed, very "pfusch"
+            Item item = new SpeedItem(); // Yes indeed, very "pfusch"
 
             item.getLocation().setPosX(action.getX());
             item.getLocation().setPosY(action.getY());
@@ -90,6 +90,7 @@ public class Game {
         // Sends all current players to the new player
         for (Player player : players.getPlayers()) {
             com.sendCreatePlayer(player, ConnectionSelector.include(client));
+            com.sendPlayerLocation(player, ConnectionSelector.include(client));
         }
 
         // Sends all current items to the player
@@ -176,6 +177,7 @@ public class Game {
         if (!items.has(itemId)) return;
         items.removeItem(itemId).collect(players.getPlayer(players.getPlayerId(clientId)).getAttributes());
         com.sendRemoveItem(itemId, ConnectionSelector.exclude());
+        com.sendPlayerAttributes(players.getPlayer(players.getPlayerId(clientId)), ConnectionSelector.exclude());
     }
 
     /**
@@ -185,7 +187,18 @@ public class Game {
      */
     public void attackPlayer(int targetId, int clientId){
         if (!players.has(targetId)) return;
-        players.getPlayer(targetId).getAttributes().setHealth(players.getPlayer(targetId).getAttributes().getHealth() - 1);
+        int newHealth = players.getPlayer(targetId).getAttributes().getHealth() - 1;
+
+        // Set respawn location
+        TileMap.Action spawn = loader.getMap(currentMap).selectRandomAction(TileMap.Action.ActionType.SPAWN);
+        players.getPlayer(targetId).getLocation().setPosX(spawn.getX());
+        players.getPlayer(targetId).getLocation().setPosY(spawn.getY());
+        com.sendPlayerLocation(players.getPlayer(targetId), ConnectionSelector.exclude());
+
+        // Reset Attributes
+        players.getPlayer(targetId).setAttributes(new PlayerAttributes());
+        players.getPlayer(targetId).getAttributes().setHealth(newHealth);
+        com.sendPlayerAttributes(players.getPlayer(targetId), ConnectionSelector.exclude());
 
         if (players.getPlayer(targetId).getAttributes().getHealth() == 0){
             com.sendRemovePlayer(targetId, ConnectionSelector.exclude(players.getRemoteId(targetId)));

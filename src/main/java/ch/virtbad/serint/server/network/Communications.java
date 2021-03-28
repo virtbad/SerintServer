@@ -84,7 +84,7 @@ public class Communications extends CustomServerPacketHandler {
     public void disconnected(UUID client) {
 
         if (register.isInGame(client)){
-            game.removeClient(register.getGameId(client));
+            game.removeClient(register.getGameId(client)); //TODO: Proper kick behaviour
         }
 
         register.disconnect(client);
