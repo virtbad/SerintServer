@@ -1,6 +1,7 @@
 package ch.virtbad.serint.server;
 
 import ch.virtbad.serint.server.game.Game;
+import ch.virtbad.serint.server.local.Time;
 import ch.virtbad.serint.server.local.config.ConfigHandler;
 import ch.virtbad.serint.server.network.Communications;
 import ch.virtbad.serint.server.network.NetworkHandler;
@@ -24,6 +25,7 @@ public class Serint {
      * Creates the Main Class
      */
     public Serint() {
+        Time.getSeconds(); // Intialize Start Time
         log.info("Starting Server version {}", VERSION);
 
         init();

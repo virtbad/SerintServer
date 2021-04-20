@@ -179,6 +179,8 @@ public class Game {
      */
     public void collectItem(int itemId, int clientId) {
         if (!items.has(itemId)) return;
+        itemSpawner.removeItem(itemId);
+
         items.removeItem(itemId).collect(players.getPlayer(players.getPlayerId(clientId)).getAttributes());
         com.sendRemoveItem(itemId, ConnectionSelector.exclude());
         com.sendPlayerAttributes(players.getPlayer(players.getPlayerId(clientId)), ConnectionSelector.exclude());
