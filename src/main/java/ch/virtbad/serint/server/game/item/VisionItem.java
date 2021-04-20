@@ -2,18 +2,15 @@ package ch.virtbad.serint.server.game.item;
 
 import ch.virtbad.serint.server.game.registers.PlayerAttributes;
 
-/**
- * @author Virt
- */
-public class SpeedItem extends Item {
+public class VisionItem extends Item {
 
-    public SpeedItem() {
-        super(1);
+    public VisionItem() {
+        super(2);
     }
+
 
     @Override
     public void collect(PlayerAttributes attributes) {
-        attributes.setSpeed(attributes.getSpeed() + 1);
-        // TODO: Make dynamic
+        attributes.setVision(attributes.getVision() + 0.5f);
     }
 }

@@ -1,19 +1,17 @@
 package ch.virtbad.serint.server.game.item;
 
 import ch.virtbad.serint.server.game.registers.PlayerAttributes;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- * @author Virt
- */
-public class SpeedItem extends Item {
+@Slf4j
+public class SuperDebugItem extends Item {
 
-    public SpeedItem() {
-        super(1);
+    public SuperDebugItem() {
+        super(4);
     }
 
     @Override
     public void collect(PlayerAttributes attributes) {
-        attributes.setSpeed(attributes.getSpeed() + 1);
-        // TODO: Make dynamic
+        log.info("SuperDebugItem has been collected!");
     }
 }

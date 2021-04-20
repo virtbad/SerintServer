@@ -8,9 +8,11 @@ import java.awt.*;
 
 /**
  * This class stores information states about one player
+ *
  * @author Virt
  */
-@Getter @Setter
+@Getter
+@Setter
 public class Player {
     private int id;
 
@@ -23,13 +25,14 @@ public class Player {
 
     /**
      * Creates a player
-     * @param name name of the player
+     *
+     * @param name  name of the player
      * @param color colour of the player
      */
     public Player(String name, Color color) {
         this.name = name;
         this.color = color;
-
+        
         location = new MovedLocation();
         attributes = new PlayerAttributes();
     }

@@ -1,12 +1,10 @@
 package ch.virtbad.serint.server.game;
 
-import ch.virtbad.serint.server.game.item.DebugItem;
 import ch.virtbad.serint.server.game.item.Item;
 import ch.virtbad.serint.server.game.item.ItemRegister;
-import ch.virtbad.serint.server.game.item.SpeedItem;
+import ch.virtbad.serint.server.game.item.ItemSpawner;
 import ch.virtbad.serint.server.game.map.MapLoader;
 import ch.virtbad.serint.server.game.map.TileMap;
-import ch.virtbad.serint.server.game.primitives.positioning.FixedLocation;
 import ch.virtbad.serint.server.game.registers.Player;
 import ch.virtbad.serint.server.game.registers.PlayerAttributes;
 import ch.virtbad.serint.server.game.registers.PlayerRegister;
@@ -19,6 +17,7 @@ import java.awt.*;
 
 /**
  * This class handles all the gameplay specific things on the server
+ *
  * @author Virt
  */
 public class Game {
@@ -27,6 +26,7 @@ public class Game {
 
     private PlayerRegister players;
     private ItemRegister items;
+    private ItemSpawner itemSpawner;
     private MapLoader loader;
 
     private String currentMap;
@@ -38,9 +38,10 @@ public class Game {
 
     /**
      * Creates a game
+     *
      * @param communications communications based on
      */
-    public Game(Communications communications){
+    public Game(Communications communications) {
         this.com = communications;
         communications.setGame(this);
 
@@ -48,42 +49,49 @@ public class Game {
 
         players = new PlayerRegister();
         items = new ItemRegister();
+        itemSpawner = new ItemSpawner(communications, items);
+
 
         loader = new MapLoader();
         loader.read();
         currentMap = "TestLobby";
     }
 
+
     /**
      * Updates the server game
      */
-    public void update(){
+    public void update() {
         tickDelta++;
 
-        if (tickDelta % 600 == 0){
+        if (tickDelta % 200 == 0) {
             TileMap.Action action = loader.getMap(currentMap).selectRandomAction(TileMap.Action.ActionType.ITEM);
 
             // TODO: Implement real spawning
 
             //Item item = new DebugItem();
+            itemSpawner.spawnItem(action);
 
-            Item item = new SpeedItem(); // Yes indeed, very "pfusch"
 
-            item.getLocation().setPosX(action.getX());
-            item.getLocation().setPosY(action.getY());
+        }
 
-            spawnItem(item);
+        for (Player player : players.getPlayers()) {
+            if (player.getAttributes().checkAttributes()) {
+                com.sendPlayerAttributes(player, ConnectionSelector.exclude());
+            }
+
         }
     }
 
     /**
      * Creates a player for a client
+     *
      * @param client id of the client
-     * @param name name of the player
+     * @param name   name of the player
      * @param colour colour of the player
      * @return player id for that client
      */
-    public int initializeClient(int client, String name, int colour){
+    public int initializeClient(int client, String name, int colour) {
         // Get and Send Map
         com.sendMap(loader.getMap(currentMap), ConnectionSelector.include(client));
 
@@ -110,9 +118,10 @@ public class Game {
 
     /**
      * Spawns the client and sets its info
+     *
      * @param client client to spawn
      */
-    public void spawnClient(int client){
+    public void spawnClient(int client) {
         Player player = players.getPlayer(players.getPlayerId(client));
 
         // Set attributes
@@ -128,9 +137,10 @@ public class Game {
 
     /**
      * Removes a player from the game
+     *
      * @param id id of the client
      */
-    public void removeClient(int id){
+    public void removeClient(int id) {
         // Sends the removal of the client to all other clients
         com.sendRemovePlayer(players.getPlayerId(id), ConnectionSelector.exclude(id));
 
@@ -140,13 +150,14 @@ public class Game {
 
     /**
      * Updates the location of the player of a client
-     * @param id id of the client
-     * @param x x coordinate
-     * @param y y coordinate
+     *
+     * @param id        id of the client
+     * @param x         x coordinate
+     * @param y         y coordinate
      * @param velocityX x velocity
      * @param velocityY y velocity
      */
-    public void updatePlayerLocation(int id, float x, float y, float velocityX, float velocityY){
+    public void updatePlayerLocation(int id, float x, float y, float velocityX, float velocityY) {
         // Updates the location of the player
         Player player = players.getPlayer(players.getPlayerId(id));
 
@@ -159,21 +170,14 @@ public class Game {
         com.sendPlayerLocation(player, ConnectionSelector.exclude(id));
     }
 
-    /**
-     * Spawns an item into the world
-     * @param item item to spawn
-     */
-    public void spawnItem(Item item){
-        item = items.getItem(items.createItem(item)); // Id is being updated
-        com.sendCreateItem(item, ConnectionSelector.exclude());
-    }
 
     /**
      * Collects an item
-     * @param itemId item that was collected
+     *
+     * @param itemId   item that was collected
      * @param clientId client that collected
      */
-    public void collectItem(int itemId, int clientId){
+    public void collectItem(int itemId, int clientId) {
         if (!items.has(itemId)) return;
         items.removeItem(itemId).collect(players.getPlayer(players.getPlayerId(clientId)).getAttributes());
         com.sendRemoveItem(itemId, ConnectionSelector.exclude());
@@ -182,10 +186,11 @@ public class Game {
 
     /**
      * Attacks a player
+     *
      * @param targetId attacked player
      * @param clientId client that attacked
      */
-    public void attackPlayer(int targetId, int clientId){
+    public void attackPlayer(int targetId, int clientId) {
         if (!players.has(targetId)) return;
         int newHealth = players.getPlayer(targetId).getAttributes().getHealth() - 1;
 
@@ -200,7 +205,7 @@ public class Game {
         players.getPlayer(targetId).getAttributes().setHealth(newHealth);
         com.sendPlayerAttributes(players.getPlayer(targetId), ConnectionSelector.exclude());
 
-        if (players.getPlayer(targetId).getAttributes().getHealth() == 0){
+        if (players.getPlayer(targetId).getAttributes().getHealth() == 0) {
             com.sendRemovePlayer(targetId, ConnectionSelector.exclude(players.getRemoteId(targetId)));
             com.kickPlayer("You ran out of lives!", ConnectionSelector.include(players.getRemoteId(targetId)));
         }
