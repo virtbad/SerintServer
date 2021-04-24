@@ -100,7 +100,7 @@ public class Communications extends CustomServerPacketHandler {
     public void handle(LoginPacket packet, UUID id){
         if (!Serint.CLIENT_VERSION.equals(packet.getVersion())){ // Check whether accepted version matches, if not disconnect it
             log.info("Client " + id + " tried to join with version " + packet.getVersion() + " but was rejected");
-            sendPacket(new KickPaket("Client version does not match! Version " + Serint.VERSION + " expected."), id);
+            sendPacket(new LoggedOutPacket("Client version does not match! Version " + Serint.VERSION + " expected."), id);
         } else {
             register.accept(id);
             sendPacket(new LoggedInPacket(Serint.VERSION, ConfigHandler.getConfig().getName(), ConfigHandler.getConfig().getDescription()), id);

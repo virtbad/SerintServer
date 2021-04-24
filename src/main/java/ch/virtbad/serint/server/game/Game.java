@@ -209,7 +209,7 @@ public class Game {
 
         if (players.getPlayer(targetId).getAttributes().getHealth() == 0) {
             com.sendRemovePlayer(targetId, ConnectionSelector.exclude(players.getRemoteId(targetId)));
-            com.kickPlayer("You ran out of lives!", ConnectionSelector.include(players.getRemoteId(targetId)));
+            com.kickPlayer("You ran out of lives!", ConnectionSelector.include(players.getRemoteId(targetId))); //TODO: Proper Death
         }
 
     }
