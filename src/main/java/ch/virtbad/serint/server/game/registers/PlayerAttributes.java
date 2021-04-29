@@ -14,18 +14,26 @@ import java.util.List;
  *
  * @author Virt
  */
-@Getter
-@Setter
 public class PlayerAttributes {
 
     private List<AttributeModifier> temporaryAttributes;
 
-    @Expose
+    @Expose @Getter
     private int health;
+    @Expose
+    private int maxHealth;
     @Expose
     private float speed;
     @Expose
+    private float boostedSpeed;
+    @Expose
+    private float maxSpeed;
+    @Expose
     private float vision;
+    @Expose
+    private float boostedVision;
+    @Expose
+    private float maxVision;
 
     /**
      * Creates default player attributes according to the config
@@ -35,9 +43,17 @@ public class PlayerAttributes {
         speed = ConfigHandler.getConfig().getBaseSpeed();
         vision = ConfigHandler.getConfig().getBaseVision();
 
+        maxHealth = ConfigHandler.getConfig().getMaxHealth();
+        maxSpeed = ConfigHandler.getConfig().getMaxSpeed();
+        maxVision = ConfigHandler.getConfig().getMaxVision();
+
         this.temporaryAttributes = new ArrayList<>();
     }
 
+    /**
+     * Checks the temporary attributes
+     * @return whether changed
+     */
     public boolean checkAttributes() {
         boolean changed = false;
         for (int i = 0; i < temporaryAttributes.size(); i++) {
@@ -51,12 +67,45 @@ public class PlayerAttributes {
         return changed;
     }
 
+    /**
+     * Changes the health of a player
+     * @param amount amount to change by
+     */
+    public void changeHealth(int amount){
+        health += amount;
+        if (health > maxHealth) health = maxHealth;
+        if (health < 0) health = 0;
+    }
+
+    /**
+     * Changes the Speed
+     * @param amount amount to change by
+     */
+    public void changeSpeed(float amount){
+        speed += amount;
+        if (speed > maxSpeed) speed = maxSpeed;
+        if (speed < 0) speed = 0;
+    }
+
+    /**
+     * Changes the Vision
+     * @param amount amount to change by
+     */
+    public void changeVision(float amount){
+        vision += amount;
+        if (vision > maxVision) vision = maxVision;
+        if (vision < 0) vision = 0;
+    }
+
+    /**
+     * Removes a temporary modifier
+     * @param modifier modifier to remove
+     */
     public void removeTemporaryAttribute(AttributeModifier modifier) {
         temporaryAttributes.remove(modifier);
 
-        health -= modifier.getHealth();
-        speed -= modifier.getSpeed();
-        vision -= modifier.getVision();
+        boostedSpeed -= modifier.getSpeed();
+        boostedVision -= modifier.getVision();
     }
 
     /**
@@ -69,9 +118,21 @@ public class PlayerAttributes {
         attributeModifier.setExpires(Time.getSeconds() + seconds);
         this.temporaryAttributes.add(attributeModifier);
 
-        health += attributeModifier.getHealth();
-        speed += attributeModifier.getSpeed();
-        vision += attributeModifier.getVision();
+        boostedSpeed += attributeModifier.getSpeed();
+        boostedVision += attributeModifier.getVision();
+    }
+
+    /**
+     * Clears attributes except health
+     */
+    public void clearAttributes(){
+        speed = ConfigHandler.getConfig().getBaseSpeed();
+        vision = ConfigHandler.getConfig().getBaseVision();
+
+        boostedVision = 0;
+        boostedSpeed = 0;
+
+        temporaryAttributes.clear();
     }
 
 }

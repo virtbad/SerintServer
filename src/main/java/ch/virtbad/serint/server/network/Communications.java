@@ -115,7 +115,7 @@ public class Communications extends CustomServerPacketHandler {
 
             int playerId = game.initializeClient(register.getGameId(id), packet.getName(), packet.getColor());
 
-            sendPacket(new JoinedPacket(playerId), id);
+            sendPacket(new JoinedPacket(playerId, packet.getColor(), packet.getName()), id);
 
             game.spawnClient(register.getGameId(id));
 

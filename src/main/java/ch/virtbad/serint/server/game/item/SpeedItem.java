@@ -13,7 +13,6 @@ public class SpeedItem extends Item {
 
     @Override
     public void collect(PlayerAttributes attributes) {
-        attributes.setSpeed(attributes.getSpeed() + 1);
-        // TODO: Make dynamic
+        attributes.changeSpeed(1);
     }
 }

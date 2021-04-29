@@ -3,10 +3,18 @@ package ch.virtbad.serint.server.game.registers;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * This class represents a temporary modifier
+ */
 @Getter
 public class AttributeModifier {
-    public AttributeModifier(int health, float speed, float vision) {
-        this.health = health;
+
+    /**
+     * Creates a modifier
+     * @param speed speed mod
+     * @param vision vision mod
+     */
+    public AttributeModifier(float speed, float vision) {
         this.speed = speed;
         this.vision = vision;
     }
@@ -14,7 +22,6 @@ public class AttributeModifier {
     @Setter
     private float expires;
 
-    private int health;
     private float speed;
     private float vision;
 }

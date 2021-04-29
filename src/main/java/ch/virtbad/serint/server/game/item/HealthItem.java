@@ -10,6 +10,6 @@ public class HealthItem extends Item {
 
     @Override
     public void collect(PlayerAttributes attributes) {
-        attributes.setHealth(attributes.getHealth() + 1);
+        attributes.changeHealth(1);
     }
 }

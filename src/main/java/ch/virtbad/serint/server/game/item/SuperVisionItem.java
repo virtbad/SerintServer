@@ -11,6 +11,6 @@ public class SuperVisionItem extends Item {
 
     @Override
     public void collect(PlayerAttributes attributes) {
-        attributes.addTemporaryAttribute(5, new AttributeModifier(0, 0, 2.5f));
+        attributes.addTemporaryAttribute(5, new AttributeModifier(0, 2.5f));
     }
 }

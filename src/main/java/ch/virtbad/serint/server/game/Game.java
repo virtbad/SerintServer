@@ -194,7 +194,6 @@ public class Game {
      */
     public void attackPlayer(int targetId, int clientId) {
         if (!players.has(targetId)) return;
-        int newHealth = players.getPlayer(targetId).getAttributes().getHealth() - 1;
 
         // Set respawn location
         TileMap.Action spawn = loader.getMap(currentMap).selectRandomAction(TileMap.Action.ActionType.SPAWN);
@@ -203,8 +202,8 @@ public class Game {
         com.sendPlayerLocation(players.getPlayer(targetId), ConnectionSelector.exclude());
 
         // Reset Attributes
-        players.getPlayer(targetId).setAttributes(new PlayerAttributes());
-        players.getPlayer(targetId).getAttributes().setHealth(newHealth);
+        players.getPlayer(targetId).getAttributes().clearAttributes();
+        players.getPlayer(targetId).getAttributes().changeHealth(-1);
         com.sendPlayerAttributes(players.getPlayer(targetId), ConnectionSelector.exclude());
 
         if (players.getPlayer(targetId).getAttributes().getHealth() == 0) {

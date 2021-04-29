@@ -16,7 +16,10 @@ public class Config {
     private int tps = 20;
 
     private float baseSpeed = 4;
+    private float maxSpeed = 8;
     private float baseVision = 4;
+    private float maxVision = 8;
     private int baseHealth = 5;
+    private int maxHealth = 5;
 
 }

@@ -13,6 +13,6 @@ public class SuperSpeedItem extends Item {
 
     @Override
     public void collect(PlayerAttributes attributes) {
-        attributes.addTemporaryAttribute(5, new AttributeModifier(0, 5, 0));
+        attributes.addTemporaryAttribute(5, new AttributeModifier(5, 0));
     }
 }

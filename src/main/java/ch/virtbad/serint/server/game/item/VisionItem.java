@@ -11,6 +11,6 @@ public class VisionItem extends Item {
 
     @Override
     public void collect(PlayerAttributes attributes) {
-        attributes.setVision(attributes.getVision() + 0.5f);
+        attributes.changeVision(0.5f);
     }
 }
