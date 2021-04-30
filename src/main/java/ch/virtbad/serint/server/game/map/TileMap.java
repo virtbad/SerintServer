@@ -103,12 +103,7 @@ public class TileMap {
     public static class Cosmetic {
         private int x;
         private int y;
-        private CosmeticType type;
-
-        public enum CosmeticType {
-            COBWEB,
-            CRACK
-        }
+        private int type;
     }
 
 
