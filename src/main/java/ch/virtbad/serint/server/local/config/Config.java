@@ -22,4 +22,8 @@ public class Config {
     private int baseHealth = 5;
     private int maxHealth = 5;
 
+    private float respawnTime = 5;
+    private float winScreenTime = 10;
+    private float startTime = 10;
+
 }

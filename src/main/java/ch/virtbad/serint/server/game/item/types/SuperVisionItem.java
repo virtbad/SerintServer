@@ -1,7 +1,8 @@
-package ch.virtbad.serint.server.game.item;
+package ch.virtbad.serint.server.game.item.types;
 
-import ch.virtbad.serint.server.game.registers.AttributeModifier;
-import ch.virtbad.serint.server.game.registers.PlayerAttributes;
+import ch.virtbad.serint.server.game.item.Item;
+import ch.virtbad.serint.server.game.player.AttributeModifier;
+import ch.virtbad.serint.server.game.player.PlayerAttributes;
 
 public class SuperVisionItem extends Item {
 

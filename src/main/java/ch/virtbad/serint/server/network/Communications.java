@@ -1,22 +1,20 @@
 package ch.virtbad.serint.server.network;
 
-import ch.virt.pseudopackets.handlers.ServerPacketHandler;
 import ch.virt.pseudopackets.packets.Packet;
 import ch.virt.pseudopackets.server.Server;
 import ch.virtbad.serint.server.Serint;
 import ch.virtbad.serint.server.game.Game;
 import ch.virtbad.serint.server.game.item.Item;
 import ch.virtbad.serint.server.game.map.TileMap;
-import ch.virtbad.serint.server.game.primitives.positioning.MovedLocation;
-import ch.virtbad.serint.server.game.registers.Player;
+import ch.virtbad.serint.server.game.player.Player;
 import ch.virtbad.serint.server.local.config.ConfigHandler;
 import ch.virtbad.serint.server.network.handling.ConnectionRegister;
 import ch.virtbad.serint.server.network.handling.ConnectionSelector;
 import ch.virtbad.serint.server.network.packets.*;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -88,6 +86,15 @@ public class Communications extends CustomServerPacketHandler {
         }
 
         register.disconnect(client);
+    }
+
+    public void kick(String reason, UUID client){
+        sendPacket(new KickPaket(reason), client);
+        try {
+            server.disconnectClient(client);
+        } catch (IOException e) {
+            log.error("Failed to disconnect client!");
+        }
     }
 
 
@@ -211,6 +218,36 @@ public class Communications extends CustomServerPacketHandler {
      * @param selector target
      */
     public void kickPlayer(String reason, ConnectionSelector selector) {
-        sendPacket(new KickPaket(reason), selector);
+        for (UUID uuid : register.selectInGame(selector)) {
+            kick(reason, uuid);
+        }
+    }
+
+    /**
+     * Sends the absorption
+     * @param issuer absorber
+     * @param respawnTime time to respawn
+     * @param selector target
+     */
+    public void sendAbsorption(Player issuer, float respawnTime, ConnectionSelector selector){
+        sendPacket(new AbsorbedPacket(issuer.getName(), respawnTime), selector);
+    }
+
+    public void sendRespawn(ConnectionSelector selector){
+        sendPacket(new RespawnPacket(), selector);
+    }
+
+    public void sendLoose(Player issuer, ConnectionSelector selector){
+        sendPacket(new LoosePacket(issuer.getName()), selector);
+    }
+
+    public void sendWin(ConnectionSelector selector){
+        sendPacket(new WinPacket(), selector);
+    }
+
+    public void kickEveryone(String reason){
+        for (UUID uuid : register.getEveryone()) {
+            kick(reason, uuid);
+        }
     }
 }

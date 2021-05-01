@@ -1,4 +1,4 @@
-package ch.virtbad.serint.server.game.registers;
+package ch.virtbad.serint.server.game.player;
 
 import lombok.Getter;
 import lombok.Setter;

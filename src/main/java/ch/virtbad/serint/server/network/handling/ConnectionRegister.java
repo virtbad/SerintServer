@@ -141,4 +141,12 @@ public class ConnectionRegister {
 
         return uuids.toArray(new UUID[0]);
     }
+
+    /**
+     * Returns every client connected to the server
+     * @return Array of clients
+     */
+    public UUID[] getEveryone(){
+        return connections.keySet().toArray(new UUID[0]);
+    }
 }

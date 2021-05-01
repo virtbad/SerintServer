@@ -1,6 +1,7 @@
 package ch.virtbad.serint.server;
 
 import ch.virtbad.serint.server.game.Game;
+import ch.virtbad.serint.server.local.CommandLineInterface;
 import ch.virtbad.serint.server.local.Time;
 import ch.virtbad.serint.server.local.config.ConfigHandler;
 import ch.virtbad.serint.server.network.Communications;
@@ -20,6 +21,8 @@ public class Serint {
     private NetworkHandler network;
 
     private Game game;
+
+    private CommandLineInterface cli;
 
     /**
      * Creates the Main Class
@@ -55,6 +58,10 @@ public class Serint {
         // Initiating Game
         Communications communications = network.createServer(new Communications());
         game = new Game(communications);
+
+        cli = new CommandLineInterface(communications, game);
+        log.info("Starting CommandLineInterface");
+        cli.start();
     }
 
     /**

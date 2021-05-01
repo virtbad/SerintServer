@@ -1,4 +1,4 @@
-package ch.virtbad.serint.server.game.registers;
+package ch.virtbad.serint.server.game.player;
 
 import ch.virtbad.serint.server.game.primitives.positioning.MovedLocation;
 import lombok.Getter;

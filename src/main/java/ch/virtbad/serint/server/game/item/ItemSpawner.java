@@ -1,5 +1,6 @@
 package ch.virtbad.serint.server.game.item;
 
+import ch.virtbad.serint.server.game.item.types.*;
 import ch.virtbad.serint.server.game.map.TileMap;
 import ch.virtbad.serint.server.network.Communications;
 import ch.virtbad.serint.server.network.handling.ConnectionSelector;

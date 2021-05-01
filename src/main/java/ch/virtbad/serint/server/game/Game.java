@@ -1,25 +1,30 @@
 package ch.virtbad.serint.server.game;
 
+import ch.virtbad.serint.server.game.actions.Action;
 import ch.virtbad.serint.server.game.item.Item;
 import ch.virtbad.serint.server.game.item.ItemRegister;
 import ch.virtbad.serint.server.game.item.ItemSpawner;
 import ch.virtbad.serint.server.game.map.MapLoader;
 import ch.virtbad.serint.server.game.map.TileMap;
-import ch.virtbad.serint.server.game.registers.Player;
-import ch.virtbad.serint.server.game.registers.PlayerAttributes;
-import ch.virtbad.serint.server.game.registers.PlayerRegister;
+import ch.virtbad.serint.server.game.player.Player;
+import ch.virtbad.serint.server.game.player.PlayerAttributes;
+import ch.virtbad.serint.server.game.player.PlayerRegister;
+import ch.virtbad.serint.server.local.Time;
 import ch.virtbad.serint.server.local.config.ConfigHandler;
 import ch.virtbad.serint.server.network.Communications;
 import ch.virtbad.serint.server.network.handling.ConnectionSelector;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * This class handles all the gameplay specific things on the server
  *
  * @author Virt
  */
+@Slf4j
 public class Game {
 
     private Communications com;
@@ -36,6 +41,8 @@ public class Game {
     @Getter
     private GameUpdater updater;
 
+    private ArrayList<Action> actions;
+
     /**
      * Creates a game
      *
@@ -51,6 +58,7 @@ public class Game {
         items = new ItemRegister();
         itemSpawner = new ItemSpawner(communications, items);
 
+        actions = new ArrayList<>();
 
         loader = new MapLoader();
         loader.read();
@@ -73,6 +81,15 @@ public class Game {
             itemSpawner.spawnItem(action);
 
 
+        }
+
+        float time = Time.getSeconds();
+        for (int i = 0; i < actions.size(); i++) {
+
+            if (time >= actions.get(i).getExpired()){
+                actions.get(i).execute();
+                actions.remove(i); // Not sus at all
+            }
         }
 
         for (Player player : players.getPlayers()) {
@@ -141,11 +158,14 @@ public class Game {
      * @param id id of the client
      */
     public void removeClient(int id) {
-        // Sends the removal of the client to all other clients
-        com.sendRemovePlayer(players.getPlayerId(id), ConnectionSelector.exclude(id));
+        if(players.hasRemote(id)) { // Check whether player is still in register
 
-        // Removes the player from the game
-        players.removePlayer(players.getPlayerId(id));
+            // Sends the removal of the client to all other clients
+            com.sendRemovePlayer(players.getPlayerId(id), ConnectionSelector.exclude(id));
+
+            // Removes the player from the game
+            players.removePlayer(players.getPlayerId(id));
+        }
     }
 
     /**
@@ -190,26 +210,65 @@ public class Game {
      * Attacks a player
      *
      * @param targetId attacked player
-     * @param clientId client that attacked
+     * @param issuerId client that attacked
      */
-    public void attackPlayer(int targetId, int clientId) {
+    public void attackPlayer(int targetId, int issuerId) {
         if (!players.has(targetId)) return;
 
-        // Set respawn location
-        TileMap.Action spawn = loader.getMap(currentMap).selectRandomAction(TileMap.Action.ActionType.SPAWN);
-        players.getPlayer(targetId).getLocation().setPosX(spawn.getX());
-        players.getPlayer(targetId).getLocation().setPosY(spawn.getY());
-        com.sendPlayerLocation(players.getPlayer(targetId), ConnectionSelector.exclude());
+        Player target = players.getPlayer(targetId);
+        Player issuer = players.getPlayer(players.getPlayerId(issuerId));
 
-        // Reset Attributes
-        players.getPlayer(targetId).getAttributes().clearAttributes();
-        players.getPlayer(targetId).getAttributes().changeHealth(-1);
-        com.sendPlayerAttributes(players.getPlayer(targetId), ConnectionSelector.exclude());
+        // Decrease Health
+        target.getAttributes().clearAttributes();
+        target.getAttributes().changeHealth(-1);
+        com.sendPlayerAttributes(target, ConnectionSelector.exclude());
 
-        if (players.getPlayer(targetId).getAttributes().getHealth() == 0) {
+        if (target.getAttributes().getHealth() > 0){ // Player has still remaining lives
+
+            log.info("Absorbing player");
+
+            // Temporarily remove Player
             com.sendRemovePlayer(targetId, ConnectionSelector.exclude(players.getRemoteId(targetId)));
-            com.kickPlayer("You ran out of lives!", ConnectionSelector.include(players.getRemoteId(targetId))); //TODO: Proper Death
-        }
+            com.sendAbsorption(issuer, ConfigHandler.getConfig().getRespawnTime(), ConnectionSelector.include(players.getRemoteId(targetId)));
 
+            // Respawn player after delay
+            actions.add(new Action(ConfigHandler.getConfig().getRespawnTime()) {
+                @Override
+                public void execute() {
+                    log.info("Respawning player");
+                    com.sendCreatePlayer(players.getPlayer(targetId), ConnectionSelector.exclude(players.getRemoteId(targetId)));
+
+                    TileMap.Action spawn = loader.getMap(currentMap).selectRandomAction(TileMap.Action.ActionType.SPAWN);
+                    players.getPlayer(targetId).getLocation().setPosX(spawn.getX());
+                    players.getPlayer(targetId).getLocation().setPosY(spawn.getY());
+                    com.sendPlayerLocation(players.getPlayer(targetId), ConnectionSelector.exclude());
+
+                    com.sendRespawn(ConnectionSelector.include(players.getRemoteId(targetId)));
+                }
+            });
+
+        }else { // Player is out of lives
+
+            log.info("Loosing player");
+
+            // Remove Player
+            com.sendRemovePlayer(targetId, ConnectionSelector.exclude(players.getRemoteId(targetId)));
+            com.sendLoose(issuer, ConnectionSelector.include(players.getRemoteId(targetId)));
+            players.removePlayer(targetId);
+
+            if (players.getPlayerAmount() == 1) { // Only one player left -> Last kill -> Game is won
+                log.info("Game is won");
+                com.sendWin(ConnectionSelector.include(issuerId));
+
+                // Kick remaining clients (may be refined)
+                actions.add(new Action(ConfigHandler.getConfig().getWinScreenTime() ) {
+                    @Override
+                    public void execute() {
+                        log.info("Kicking everyone from server");
+                        com.kickEveryone("Game Ended!");
+                    }
+                });
+            }
+        }
     }
 }

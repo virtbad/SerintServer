@@ -1,4 +1,4 @@
-package ch.virtbad.serint.server.game.registers;
+package ch.virtbad.serint.server.game.player;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,6 +48,10 @@ public class PlayerRegister {
 
     public boolean has(int id){
         return players.containsKey(id);
+    }
+
+    public boolean hasRemote(int id){
+        return remotePlayerIdMappings.containsKey(id);
     }
 
     /**
@@ -101,6 +105,14 @@ public class PlayerRegister {
      */
     public Player[] getPlayers(){
         return players.values().toArray(new Player[0]);
+    }
+
+    /**
+     * Returns the amount of players in the game
+     * @return players in the game
+     */
+    public int getPlayerAmount(){
+        return players.size();
     }
 
 }

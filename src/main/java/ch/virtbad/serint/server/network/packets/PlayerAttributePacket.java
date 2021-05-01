@@ -1,7 +1,7 @@
 package ch.virtbad.serint.server.network.packets;
 
 import ch.virt.pseudopackets.packets.Packet;
-import ch.virtbad.serint.server.game.registers.PlayerAttributes;
+import ch.virtbad.serint.server.game.player.PlayerAttributes;
 import lombok.Getter;
 
 /**

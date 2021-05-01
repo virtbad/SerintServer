@@ -1,7 +1,7 @@
 package ch.virtbad.serint.server.game.item;
 
 import ch.virtbad.serint.server.game.primitives.positioning.FixedLocation;
-import ch.virtbad.serint.server.game.registers.PlayerAttributes;
+import ch.virtbad.serint.server.game.player.PlayerAttributes;
 import lombok.Getter;
 import lombok.Setter;
 

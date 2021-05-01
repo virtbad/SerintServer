@@ -1,10 +1,9 @@
-package ch.virtbad.serint.server.game.registers;
+package ch.virtbad.serint.server.game.player;
 
 import ch.virtbad.serint.server.local.Time;
 import ch.virtbad.serint.server.local.config.ConfigHandler;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
