@@ -26,4 +26,10 @@ public class Config {
     private float winScreenTime = 10;
     private float startTime = 10;
 
+    private float itemSpawnMin = 10;
+    private float itemSpawnMax = 20;
+
+    private String gameMap = "Game";
+    private String lobbyMap = "Lobby";
+
 }

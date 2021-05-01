@@ -36,12 +36,13 @@ public class Game {
 
     private String currentMap;
 
-    private int tickDelta = 0;
-
     @Getter
     private GameUpdater updater;
 
     private ArrayList<Action> actions;
+
+    private boolean inLobby;
+    private boolean started;
 
     /**
      * Creates a game
@@ -62,7 +63,64 @@ public class Game {
 
         loader = new MapLoader();
         loader.read();
-        currentMap = "TestLobby";
+
+        reset();
+    }
+
+    public void reset(){
+        log.info("Resetting game environment");
+        inLobby = true;
+        started = false;
+        items.removeAll();
+
+        currentMap = ConfigHandler.getConfig().getLobbyMap();
+    }
+
+    public void startGame(){
+        if (started) return;
+
+        if (players.getPlayerAmount() < 2){
+            log.info("Cannot start game with less that two players");
+            return;
+        }
+
+        started = true;
+
+        log.info("Starting game in {} Seconds", ConfigHandler.getConfig().getStartTime());
+        com.sendGameStartPeak(ConfigHandler.getConfig().getStartTime(), ConnectionSelector.exclude());
+        actions.add(new Action(ConfigHandler.getConfig().getStartTime()) {
+            @Override
+            public void execute() {
+                start();
+            }
+        });
+    }
+
+    private void start(){
+
+        if (players.getPlayerAmount() < 2){
+            log.info("Cannot start game with less that two players");
+            started = false;
+            return;
+        }
+
+        log.info("Starting game");
+        currentMap = ConfigHandler.getConfig().getGameMap();
+
+        com.sendMap(loader.getMap(currentMap), ConnectionSelector.exclude());
+        inLobby = false;
+
+        for (Player player : players.getPlayers()) {
+            spawnClient(players.getRemoteId(player.getId()));
+        }
+
+        com.sendGameStart(ConnectionSelector.exclude());
+        log.info("Started game");
+    }
+
+    public void stopGame(){
+        com.kickEveryone("Game was stopped!");
+        reset();
     }
 
 
@@ -70,17 +128,17 @@ public class Game {
      * Updates the server game
      */
     public void update() {
-        tickDelta++;
 
-        if (tickDelta % 200 == 0) {
-            TileMap.Action action = loader.getMap(currentMap).selectRandomAction(TileMap.Action.ActionType.ITEM);
+        if (!inLobby) {
 
-            // TODO: Implement real spawning
+            itemSpawner.trySpawn(loader.getMap(currentMap));
 
-            //Item item = new DebugItem();
-            itemSpawner.spawnItem(action);
+            for (Player player : players.getPlayers()) {
+                if (player.getAttributes().checkAttributes()) {
+                    com.sendPlayerAttributes(player, ConnectionSelector.exclude());
+                }
 
-
+            }
         }
 
         float time = Time.getSeconds();
@@ -90,13 +148,6 @@ public class Game {
                 actions.get(i).execute();
                 actions.remove(i); // Not sus at all
             }
-        }
-
-        for (Player player : players.getPlayers()) {
-            if (player.getAttributes().checkAttributes()) {
-                com.sendPlayerAttributes(player, ConnectionSelector.exclude());
-            }
-
         }
     }
 
@@ -165,6 +216,23 @@ public class Game {
 
             // Removes the player from the game
             players.removePlayer(players.getPlayerId(id));
+
+            if (players.getPlayerAmount() == 1) { // last player left
+                log.info("Game is won");
+
+                com.sendWin(ConnectionSelector.include(players.getRemoteId(players.getPlayers()[0].getId())));
+
+                // Kick remaining clients (may be refined)
+                actions.add(new Action(ConfigHandler.getConfig().getWinScreenTime() ) {
+                    @Override
+                    public void execute() {
+                        log.info("Kicking everyone from server");
+                        com.kickEveryone("Game Ended!");
+                        reset(); // Restore default server
+                    }
+                });
+            }
+
         }
     }
 
@@ -199,7 +267,6 @@ public class Game {
      */
     public void collectItem(int itemId, int clientId) {
         if (!items.has(itemId)) return;
-        itemSpawner.removeItem(itemId);
 
         items.removeItem(itemId).collect(players.getPlayer(players.getPlayerId(clientId)).getAttributes());
         com.sendRemoveItem(itemId, ConnectionSelector.exclude());
@@ -266,6 +333,7 @@ public class Game {
                     public void execute() {
                         log.info("Kicking everyone from server");
                         com.kickEveryone("Game Ended!");
+                        reset(); // Restore default server
                     }
                 });
             }

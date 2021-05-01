@@ -82,7 +82,7 @@ public class Communications extends CustomServerPacketHandler {
     public void disconnected(UUID client) {
 
         if (register.isInGame(client)){
-            game.removeClient(register.getGameId(client)); //TODO: Proper kick behaviour
+            game.removeClient(register.getGameId(client));
         }
 
         register.disconnect(client);
@@ -249,5 +249,13 @@ public class Communications extends CustomServerPacketHandler {
         for (UUID uuid : register.getEveryone()) {
             kick(reason, uuid);
         }
+    }
+
+    public void sendGameStartPeak(float delay, ConnectionSelector selector){
+        sendPacket(new GameStartPeakPacket(delay), selector);
+    }
+
+    public void sendGameStart(ConnectionSelector selector){
+        sendPacket(new GameStartPacket(), selector);
     }
 }

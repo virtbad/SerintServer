@@ -2,6 +2,8 @@ package ch.virtbad.serint.server.game.item;
 
 import ch.virtbad.serint.server.game.item.types.*;
 import ch.virtbad.serint.server.game.map.TileMap;
+import ch.virtbad.serint.server.local.Time;
+import ch.virtbad.serint.server.local.config.ConfigHandler;
 import ch.virtbad.serint.server.network.Communications;
 import ch.virtbad.serint.server.network.handling.ConnectionSelector;
 
@@ -19,18 +21,25 @@ public class ItemSpawner {
 
     private Communications com;
 
-
-    List<Integer> items = new ArrayList<Integer>();
+    private float nextItem;
 
     public ItemSpawner(Communications com, ItemRegister register) {
         this.com = com;
         this.register = register;
     }
 
+    public void trySpawn(TileMap locations){
+        if (Time.getSeconds() > nextItem){
+            nextItem = Time.getSeconds() + (float) (Math.random() * (ConfigHandler.getConfig().getItemSpawnMax() - ConfigHandler.getConfig().getItemSpawnMin()) + ConfigHandler.getConfig().getItemSpawnMin());
+
+            spawnItem(locations.selectRandomAction(TileMap.Action.ActionType.ITEM));
+        }
+    }
+
     public void spawnItem(TileMap.Action action) {
-        for (int id : items) {
-            Item item = register.getItem(id);
+        for (Item item : register.getItems()) {
             if (item.getLocation().getPosX() == action.getX() && item.getLocation().getPosY() == action.getY()) return;
+
         }
 
 
@@ -54,11 +63,7 @@ public class ItemSpawner {
         item.getLocation().setPosY(action.getY());
 
         item = register.getItem(register.createItem(item));
-        items.add(item.getId());
         com.sendCreateItem(item, ConnectionSelector.exclude());
     }
 
-    public void removeItem(int id) {
-        items.remove((Integer) id);
-    }
 }

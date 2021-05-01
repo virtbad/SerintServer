@@ -65,4 +65,11 @@ public class ItemRegister {
     public Item[] getItems(){
         return items.values().toArray(new Item[0]);
     }
+
+    /**
+     * Removes all items
+     */
+    public void removeAll(){
+        items.clear();
+    }
 }

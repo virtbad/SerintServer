@@ -27,9 +27,16 @@ public class CommandLineInterface implements Runnable {
         else if (command.equals("start")){
             log.info("Starting game!");
 
+            game.startGame();
 
-        }else if (command.equals("exit")){
+        } else if (command.equals("stop")) {
+            log.info("Stopping current game!");
+
+            game.stopGame();
+
+        } else if (command.equals("exit")){
             log.info("Doing hard exit!");
+
             com.kickEveryone("Server Closed!");
             System.exit(0);
         }
