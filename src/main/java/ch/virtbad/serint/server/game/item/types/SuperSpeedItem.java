@@ -3,6 +3,7 @@ package ch.virtbad.serint.server.game.item.types;
 import ch.virtbad.serint.server.game.item.Item;
 import ch.virtbad.serint.server.game.player.AttributeModifier;
 import ch.virtbad.serint.server.game.player.PlayerAttributes;
+import ch.virtbad.serint.server.local.config.ConfigHandler;
 
 public class SuperSpeedItem extends Item {
     public final int DURATION = 5;
@@ -14,6 +15,6 @@ public class SuperSpeedItem extends Item {
 
     @Override
     public void collect(PlayerAttributes attributes) {
-        attributes.addTemporaryAttribute(5, new AttributeModifier(5, 0));
+        attributes.addTemporaryAttribute(ConfigHandler.getConfig().getSuperDurationSpeed(), new AttributeModifier(ConfigHandler.getConfig().getSuperStepSpeed(), 0));
     }
 }

@@ -3,6 +3,7 @@ package ch.virtbad.serint.server.game.item.types;
 import ch.virtbad.serint.server.game.item.Item;
 import ch.virtbad.serint.server.game.player.AttributeModifier;
 import ch.virtbad.serint.server.game.player.PlayerAttributes;
+import ch.virtbad.serint.server.local.config.ConfigHandler;
 
 public class SuperVisionItem extends Item {
 
@@ -12,6 +13,6 @@ public class SuperVisionItem extends Item {
 
     @Override
     public void collect(PlayerAttributes attributes) {
-        attributes.addTemporaryAttribute(5, new AttributeModifier(0, 2.5f));
+        attributes.addTemporaryAttribute(ConfigHandler.getConfig().getSuperDurationVision(), new AttributeModifier(0, ConfigHandler.getConfig().getSuperStepVision()));
     }
 }

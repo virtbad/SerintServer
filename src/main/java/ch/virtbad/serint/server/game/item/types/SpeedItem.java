@@ -2,6 +2,7 @@ package ch.virtbad.serint.server.game.item.types;
 
 import ch.virtbad.serint.server.game.item.Item;
 import ch.virtbad.serint.server.game.player.PlayerAttributes;
+import ch.virtbad.serint.server.local.config.ConfigHandler;
 
 /**
  * @author Virt
@@ -14,6 +15,6 @@ public class SpeedItem extends Item {
 
     @Override
     public void collect(PlayerAttributes attributes) {
-        attributes.changeSpeed(1);
+        attributes.changeSpeed(ConfigHandler.getConfig().getStepSpeed());
     }
 }

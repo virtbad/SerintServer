@@ -117,6 +117,11 @@ public class Communications extends CustomServerPacketHandler {
     public void handle(JoinPacket packet, UUID id){
         if (register.isAccepted(id)){
 
+            if (game.isStarted()) { // Only let clients join if a game has not been started yet
+                sendPacket(new NotJoinedPacket("Game has already started."), id);
+                return;
+            }
+
             register.join(id);
             log.info("Client {} joined the game with id {}", id, register.getGameId(id));
 

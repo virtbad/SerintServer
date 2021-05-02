@@ -2,6 +2,7 @@ package ch.virtbad.serint.server.game.item.types;
 
 import ch.virtbad.serint.server.game.item.Item;
 import ch.virtbad.serint.server.game.player.PlayerAttributes;
+import ch.virtbad.serint.server.local.config.ConfigHandler;
 
 public class HealthItem extends Item {
 
@@ -11,6 +12,6 @@ public class HealthItem extends Item {
 
     @Override
     public void collect(PlayerAttributes attributes) {
-        attributes.changeHealth(1);
+        attributes.changeHealth(ConfigHandler.getConfig().getStepHealth());
     }
 }

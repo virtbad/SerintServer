@@ -42,6 +42,7 @@ public class Game {
     private ArrayList<Action> actions;
 
     private boolean inLobby;
+    @Getter
     private boolean started;
 
     /**
@@ -217,7 +218,7 @@ public class Game {
             // Removes the player from the game
             players.removePlayer(players.getPlayerId(id));
 
-            if (players.getPlayerAmount() == 1) { // last player left
+            if (!inLobby && players.getPlayerAmount() == 1) { // last player left in game and not in lobby
                 log.info("Game is won");
 
                 com.sendWin(ConnectionSelector.include(players.getRemoteId(players.getPlayers()[0].getId())));
@@ -266,6 +267,7 @@ public class Game {
      * @param clientId client that collected
      */
     public void collectItem(int itemId, int clientId) {
+        if (inLobby) return;
         if (!items.has(itemId)) return;
 
         items.removeItem(itemId).collect(players.getPlayer(players.getPlayerId(clientId)).getAttributes());
@@ -280,15 +282,17 @@ public class Game {
      * @param issuerId client that attacked
      */
     public void attackPlayer(int targetId, int issuerId) {
+        if (inLobby) return;
         if (!players.has(targetId)) return;
 
         Player target = players.getPlayer(targetId);
         Player issuer = players.getPlayer(players.getPlayerId(issuerId));
 
-        // Decrease Health
-        target.getAttributes().clearAttributes();
+        // Change Attributes
+        attributePassing(target, issuer);
         target.getAttributes().changeHealth(-1);
         com.sendPlayerAttributes(target, ConnectionSelector.exclude());
+        com.sendPlayerAttributes(issuer, ConnectionSelector.exclude());
 
         if (target.getAttributes().getHealth() > 0){ // Player has still remaining lives
 
@@ -338,5 +342,28 @@ public class Game {
                 });
             }
         }
+    }
+
+    public void attributePassing(Player victim, Player issuer){
+        float issuerVision = issuer.getAttributes().getVision() * ConfigHandler.getConfig().getKeepIssuer();
+        float issuerSpeed = issuer.getAttributes().getSpeed() * ConfigHandler.getConfig().getKeepIssuer();
+
+        float victimVision = victim.getAttributes().getVision() * ConfigHandler.getConfig().getKeepVictim();
+        float victimSpeed = victim.getAttributes().getSpeed() * ConfigHandler.getConfig().getKeepVictim();
+
+        issuerVision += victim.getAttributes().getVision() * ConfigHandler.getConfig().getGetIssuer();
+        issuerSpeed += victim.getAttributes().getSpeed() * ConfigHandler.getConfig().getGetIssuer();
+
+        victimVision += issuer.getAttributes().getVision() * ConfigHandler.getConfig().getGetVictim();
+        victimSpeed += issuer.getAttributes().getSpeed() * ConfigHandler.getConfig().getGetVictim();
+
+        victim.getAttributes().setSpeed(victimSpeed);
+        victim.getAttributes().setVision(victimVision);
+
+        issuer.getAttributes().setVision(issuerVision);
+        issuer.getAttributes().setSpeed(issuerSpeed);
+
+        victim.getAttributes().normalizeAttributes();
+        issuer.getAttributes().normalizeAttributes();
     }
 }

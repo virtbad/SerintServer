@@ -4,6 +4,7 @@ import ch.virtbad.serint.server.local.Time;
 import ch.virtbad.serint.server.local.config.ConfigHandler;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +22,13 @@ public class PlayerAttributes {
     private int health;
     @Expose
     private int maxHealth;
-    @Expose
+    @Expose @Getter @Setter
     private float speed;
     @Expose
     private float boostedSpeed;
     @Expose
     private float maxSpeed;
-    @Expose
+    @Expose @Getter @Setter
     private float vision;
     @Expose
     private float boostedVision;
@@ -113,7 +114,7 @@ public class PlayerAttributes {
      * @param seconds           seconds the attribute will be applied
      * @param attributeModifier modifier that will be applied
      */
-    public void addTemporaryAttribute(int seconds, AttributeModifier attributeModifier) {
+    public void addTemporaryAttribute(float seconds, AttributeModifier attributeModifier) {
         attributeModifier.setExpires(Time.getSeconds() + seconds);
         this.temporaryAttributes.add(attributeModifier);
 
@@ -127,6 +128,22 @@ public class PlayerAttributes {
     public void clearAttributes(){
         speed = ConfigHandler.getConfig().getBaseSpeed();
         vision = ConfigHandler.getConfig().getBaseVision();
+
+        boostedVision = 0;
+        boostedSpeed = 0;
+
+        temporaryAttributes.clear();
+    }
+
+    /**
+     * Clears temporary attributes and fixes the normal ones if they are out of range
+     */
+    public void normalizeAttributes(){
+        if (speed < ConfigHandler.getConfig().getBaseSpeed()) speed = ConfigHandler.getConfig().getBaseSpeed();
+        if (vision < ConfigHandler.getConfig().getBaseVision()) vision = ConfigHandler.getConfig().getBaseVision();
+
+        if (speed > ConfigHandler.getConfig().getMaxSpeed()) speed = ConfigHandler.getConfig().getMaxSpeed();
+        if (vision > ConfigHandler.getConfig().getMaxVision()) vision = ConfigHandler.getConfig().getMaxVision();
 
         boostedVision = 0;
         boostedSpeed = 0;

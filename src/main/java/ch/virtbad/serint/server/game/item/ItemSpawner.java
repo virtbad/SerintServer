@@ -12,11 +12,6 @@ import java.util.List;
 
 public class ItemSpawner {
 
-    public final float HEALTH_CHANGE = 0.2f;
-    public final float VISION_CHANGE = 0.3f;
-    public final float SPEED_CHANGE = 0.5f;
-    public final float SUPER_CHANGE = 0.25f;
-
     private ItemRegister register;
 
     private Communications com;
@@ -43,22 +38,25 @@ public class ItemSpawner {
         }
 
 
-        Item item = null;
+        Item item;
 
         float random = (float) Math.random();
         float superRandom = (float) Math.random();
 
-        item = new SuperVisionItem();
+        if (random <= ConfigHandler.getConfig().getChanceVision()) { // Vision
 
-        if (random <= HEALTH_CHANGE) {
-            item = new HealthItem();
-        } else if (random <= VISION_CHANGE + HEALTH_CHANGE) {
-            if (superRandom <= SUPER_CHANGE) item = new SuperVisionItem();
+            if (superRandom <= ConfigHandler.getConfig().getChanceSuperVision()) item = new SuperVisionItem();
             else item = new VisionItem();
-        } else if (random <= SPEED_CHANGE + VISION_CHANGE + HEALTH_CHANGE) {
-            if (superRandom <= SUPER_CHANGE) item = new SuperSpeedItem();
+
+        } else if (random <= ConfigHandler.getConfig().getChanceVision() + ConfigHandler.getConfig().getChanceSpeed()) { // Speed
+
+            if (superRandom <= ConfigHandler.getConfig().getChanceSuperSpeed()) item = new SuperSpeedItem();
             else item = new SpeedItem();
+
+        } else { // Health
+          item = new HealthItem();
         }
+
         item.getLocation().setPosX(action.getX());
         item.getLocation().setPosY(action.getY());
 
