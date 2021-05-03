@@ -56,13 +56,12 @@ public class FileHandler {
     public static InputStream[] getFilesystemFolderFiles(String path) {
         log.debug("Fetching Filesystem Folder: {}", path);
         File folder = new File(path);
-        ArrayList<InputStream> streams = new ArrayList<InputStream>();
-        String fileRegex = ".+-([0-9]+).json";
+        ArrayList<InputStream> streams = new ArrayList<>();
+
         if (!folder.exists() || !folder.isDirectory()) return new InputStream[0];
+
         for (File entry : Objects.requireNonNull(folder.listFiles())) {
-            if (entry.getName().matches(fileRegex)) {
-                streams.add(FileHandler.getFilesystemFile(entry.getPath()));
-            }
+            streams.add(FileHandler.getFilesystemFile(entry.getPath()));
         }
         return streams.toArray(new InputStream[0]);
     }
