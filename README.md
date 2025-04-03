@@ -82,7 +82,7 @@ The following shows the schema of the config file with its default values:
 }
 ```
 
-For every item spawn an item is picked according to the following definition. For $x \in [0, 1)$,
+For every item spawn an item is picked according to the following definition. For $x \in [0, 1)$ picked randomly,
 
 ```math
 item = 
