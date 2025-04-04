@@ -11,8 +11,8 @@ FROM eclipse-temurin:16-alpine AS runner
 WORKDIR /app
 
 COPY --from=builder /app/server.jar ./server.jar
+COPY --from=builder /app/maps ./maps
 
 EXPOSE 17371
 
 CMD ["java", "-jar", "server.jar"]
-
